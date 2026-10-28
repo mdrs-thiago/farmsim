@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+  Static top-down camera for the one-time row-marking step
+  (capture_topdown.launch.py / segment_rows.py / manual polygon
+  annotation). Spawned dynamically (via `ros_gz_sim create -file`) by
+  capture_topdown.launch.py rather than baked into
+  vollebekk_20250624.sdf -- it used to live directly in that world file,
+  but since farm_sim.launch.py loads the same world to spawn the robot
+  (which has its own front_camera), the two cameras' CameraInfo both
+  landed on gz-sim's single shared flat /camera_info topic (see the
+  gz-sim CameraInfo-topic quirk noted elsewhere in this package), and
+  whichever happened to publish last silently won -- confirmed this
+  corrupted /front_camera/camera_info's intrinsics (reporting the
+  birdseye camera's 6400x6400 fx/cx/cy instead of the front camera's
+  640x480 ones) on every farm_sim.launch.py run once birdseye_camera was
+  added to the world file. Spawning it only for capture_topdown.launch.py
+  keeps it entirely out of farm_sim.launch.py's world.
+
+  Pose/resolution history: 65m/1600px (8.1cm/px, too coarse), then
+  50m/3200px over the mesh's world-AXIS-ALIGNED bounding box (x:[-85,10]
+  y:[-40,45], ~95x86m -- 3.1cm/px, still soft for manual work). Current
+  version instead frames the crop's own rotated extent (measured off
+  that 3200px capture via vegetation_mask+field_rotated_rect+
+  pixel_to_world: true size ~67.4m x 37.1m, centered world (-36.44,
+  1.72), long axis at world heading ~29.36deg) -- yaw is set so the
+  image's v-axis lines up with that long axis, so a square footprint
+  only needs ~67.4m instead of the full 95m-wide world-aligned AABB.
+  Footprint 78m (~15% margin) at height 39m, image 6400px -> ~1.2cm/px.
+
+  image width/height and clip/far are str.format() placeholders,
+  substituted by capture_topdown.launch.py before spawning via
+  `create -string` (not `-file` -- this file on disk is kept only as a
+  human-readable template; the pose values below are illustrative only,
+  since `create` ignores a spawned model's embedded <pose> regardless --
+  see the pose-flags note elsewhere in this package). Makes
+  resolution/altitude/far-clip launch args instead of a source edit per
+  map/iteration.
+-->
+<sdf version="1.8">
+  <model name="birdseye_camera">
+    <static>true</static>
+    <pose>-36.4446 1.7231 39 0 1.5708 0.51245</pose>
+    <link name="link">
+      <sensor name="birdseye_camera" type="camera">
+        <camera>
+          <horizontal_fov>1.5708</horizontal_fov>
+          <image>
+            <width>{image_size}</width>
+            <height>{image_size}</height>
+          </image>
+          <clip>
+            <near>1.0</near>
+            <far>{far_clip}</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>2</update_rate>
+        <topic>birdseye_camera</topic>
+      </sensor>
+    </link>
+  </model>
+</sdf>

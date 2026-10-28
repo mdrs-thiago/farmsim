@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!-- Trimmed copy of ros_src/plants_disorganized: farmsim only uses
+     meshes/acanthus.stl, which world_gen.add_weeds scatters as weeds
+     (colours set inline in the generated world). -->
+<sdf version="1.6">
+  <model name="plants_disorganized">
+    <static>true</static>
+    <link name="link">
+      <visual name="acanthus">
+        <geometry><mesh><uri>model://plants_disorganized/meshes/acanthus.stl</uri><scale>0.005 0.005 0.005</scale></mesh></geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

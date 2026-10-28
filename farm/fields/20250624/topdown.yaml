@@ -1,0 +1,16 @@
+camera_pose:
+  pitch: 1.5708
+  roll: 0.0
+  x: -36.4446
+  y: 1.7231
+  yaw: 0.51245
+  z: 39.0
+ground_plane_z: -0.8475
+height: 6400
+image_path: topdown.png
+intrinsics:
+  cx: 3200.0
+  cy: 3200.0
+  fx: 3199.988555908203
+  fy: 3199.988555908203
+width: 6400
