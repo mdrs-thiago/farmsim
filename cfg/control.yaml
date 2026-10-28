@@ -1,0 +1,48 @@
+# Row-following controller. Every strategy outputs (v, omega).
+control:
+  strategy: pd            # pd | pure_pursuit | stanley | bangbang | fuzzy
+  checkpoint: null        # optional controller state_dict from optimize.py
+  max_angular: 0.5        # rad/s
+
+  # Shared linear-velocity policy (all strategies except fuzzy, which sets v itself).
+  speed:
+    v_nominal: 0.3        # m/s
+    v_min: 0.05
+    v_max: 0.6
+    k_turn: 0.5           # slow down with |omega|
+    k_heading: 0.5        # ... with |heading error|
+    k_offset: 0.3         # ... with |lateral offset|
+    min_confidence: 0.3   # perception confidence below this -> confidence_floor
+    confidence_floor: 0.3
+    row_end_ramp_m: 2.0   # ramp down over the last metres of a row
+    row_end_floor: 0.3
+
+  gains:
+    pd: {k_offset: 0.3, k_heading: 0.5, k_damping: 0.4}
+    pure_pursuit: {lookahead_m: 1.5}
+    stanley: {k_stanley: 0.8, v_epsilon: 0.4, k_damping: 0.6}
+    bangbang: {deadband_m: 0.1, magnitude: 0.15}
+
+  fuzzy:
+    e_range: 1.0          # universe of discourse, m
+    psi_range: 0.8        # rad
+    r_range: 0.6          # rad/s
+    end_range: 10.0       # m
+    k_offset: 0.3         # initial omega rule base = interpolated PD with these gains
+    k_heading: 0.5
+    k_damping: 0.4
+    slow_heading: 0.5     # v-rule factors for each "bad" condition
+    slow_offset: 0.6
+    slow_confidence: 0.4
+    slow_row_end: 0.4
+
+  # Applied on the robot only (not in the differentiable optimisation).
+  runtime:
+    max_angular_rate: 0.6   # rad/s^2
+    max_linear_accel: 0.5   # m/s^2
+    perturb_std: 0.0        # gaussian noise on omega, rad/s (dataset diversity)
+
+  # Between row passes: pure pursuit on ground truth.
+  headland:
+    speed: 0.25
+    lookahead_m: 1.2

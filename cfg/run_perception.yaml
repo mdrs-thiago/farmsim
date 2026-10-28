@@ -1,0 +1,14 @@
+include: [robot.yaml, farm.yaml, control.yaml]
+perception:
+  checkpoint: models/row_net/cnn/last.pt
+  device: auto
+# offline: run on recorded dataset sequences
+offline:
+  dataset: dataset/row_perception_v1
+  split: test
+  limit: 3              # sequences; null = whole split
+  video: true
+# live: drive the path on ground truth while the CNN runs and is shown
+live:
+  path: paths/single_row.yaml
+  max_duration_s: 120

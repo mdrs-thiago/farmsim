@@ -1,0 +1,8 @@
+# Enter row 3 from the west, leave it to the east, turn in the headland,
+# come back along row 5 from east to west.
+field: 20250425
+lead_in_m: 2.0      # straight approach before each row
+lead_out_m: 2.0     # straight exit after each row
+passes:
+  - {row: 3, enter: west, exit: east}
+  - {row: 5, enter: east, exit: west}

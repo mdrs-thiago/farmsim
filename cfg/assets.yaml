@@ -1,0 +1,8 @@
+# Photogrammetry field models are not in git. Upload the zips made by
+#   python -m farmsim_utils.fetch_assets pack
+# to Drive, paste the share links here, then anyone can run
+#   python -m farmsim_utils.fetch_assets fetch
+field_models:
+  20250425: TODO-drive-link
+  20250624: TODO-drive-link
+  20260331: TODO-drive-link

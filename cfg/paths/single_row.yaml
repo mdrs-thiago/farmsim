@@ -1,0 +1,3 @@
+field: 20250425
+passes:
+  - {row: 9, enter: west, exit: east}

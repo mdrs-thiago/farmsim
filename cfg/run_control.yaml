@@ -1,0 +1,8 @@
+include: [robot.yaml, farm.yaml, control.yaml]
+run:
+  path: paths/example.yaml
+  pose_source: perception   # gt | perception
+  checkpoint: models/row_net/cnn/last.pt
+  repeats: 1
+  max_duration_s: 400
+  name: null                # output folder name; default = timestamp

@@ -1,0 +1,32 @@
+include: [robot.yaml, farm.yaml, control.yaml]
+control:
+  strategy: fuzzy           # the controller trained jointly with the CNN
+
+optimize:
+  method: control_aware     # control_aware | rl
+  name: null                # output folder in models/optimize/
+
+  control_aware:
+    dataset: dataset/row_perception_v1
+    checkpoint: models/row_net/cnn/last.pt   # CNN to fine-tune; null = start from ImageNet
+    model: cnn              # used when checkpoint is null: cnn | cnn_lstm
+    epochs: 5
+    batch_size: 32
+    lr_perception: 1.0e-4
+    lr_controller: 1.0e-2
+    lambda_control: 5.0     # weight of |u(pred) - u(gt)|^2
+    lambda_reference: 1.0   # keeps u(gt) close to the reference controller
+    command_weights: {v: 1.0, omega: 4.0}
+    reference: {strategy: pd}               # anchor; any control: block keys
+    limit_sequences: null
+    closed_loop_eval: true  # run_control with the result at the end
+
+  rl:
+    path: paths/single_row.yaml
+    checkpoint: models/row_net/cnn/last.pt
+    episodes: 20
+    max_steps: 600
+    dt: 0.1                 # s per step
+    lr: 1.0e-3
+    init_log_std: -1.5
+    max_offset_m: 1.0       # episode ends beyond this ground-truth offset

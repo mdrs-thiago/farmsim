@@ -1,0 +1,23 @@
+# colcon
+build/
+install/
+log/
+
+# python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# large / generated, kept out of git
+dataset/*
+!dataset/README.md
+!dataset/COLCON_IGNORE
+models/*
+!models/README.md
+!models/COLCON_IGNORE
+outputs/*
+!outputs/COLCON_IGNORE
+farm/fields/*/model/
+farm/fields/*/topdown.png

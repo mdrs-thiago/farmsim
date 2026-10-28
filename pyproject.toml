@@ -1,0 +1,42 @@
+# Python side of farmsim: installs the farmsim_* packages (editable) plus the
+# training/rendering dependencies into ONE venv that also sees ROS's
+# system packages (rclpy, cv2, numpy, yaml). See README "Setup".
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "farmsim"
+version = "0.1.0"
+description = "Thorvald row-following in surveyed farm fields: simulation, perception, control."
+requires-python = ">=3.10"
+# numpy, opencv (cv2), PyYAML and Pillow come from the ROS system install
+# (venv --system-site-packages); pip copies of them would shadow ROS's.
+dependencies = [
+    "torch>=2.4",
+    "torchvision",
+    "torch-fis==0.2.0",
+    "scipy",
+    "trimesh",
+    "moderngl",
+]
+
+[project.optional-dependencies]
+drive = ["gdown"]
+dev = ["pytest"]
+
+[tool.setuptools]
+package-dir = {"farmsim_utils" = "utils/farmsim_utils", "farmsim_control" = "control/farmsim_control", "farmsim_farm" = "farm/farmsim_farm", "farmsim_perception" = "perception/farmsim_perception"}
+packages = [
+    "farmsim_utils",
+    "farmsim_control",
+    "farmsim_farm",
+    "farmsim_perception",
+    "farmsim_perception.models",
+    "farmsim_perception.training",
+    "farmsim_perception.anomalies",
+    "farmsim_perception.labeling",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

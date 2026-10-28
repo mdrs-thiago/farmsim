@@ -1,0 +1,6 @@
+# Which field to simulate and how to run gz-sim.
+farm:
+  field: 20250425         # folder in farm/fields/
+sim:
+  headless: true
+  startup_wait_s: 12      # seconds before nodes are expected to be up

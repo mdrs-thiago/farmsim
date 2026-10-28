@@ -1,0 +1,15 @@
+include: [robot.yaml, farm.yaml, control.yaml]
+record:
+  dataset: dataset/row_perception_v1   # sessions are added here in the v1 layout
+  sessions: 1
+  seed_start: null        # null = random seeds
+  navigation_profile: diverse   # diverse (recovery mix) | expected (clean PD)
+  target_frames: 130
+  max_record_s: 150
+  save_every_n: 5         # keep every n-th camera frame
+  keep_bag: false         # also keep the mcap bag (large)
+  alignment_check: true   # coarse label/camera alignment QC per session
+  # Who drives while recording: gt = randomised classic controllers (default);
+  # perception = the CNN in the loop (DAgger-style data collection).
+  pose_source: gt
+  checkpoint: null        # needed when pose_source: perception
