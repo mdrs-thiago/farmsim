@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>thorvald_can_devices</name>
+  <version>0.0.1</version>
+  <description>CAN device drivers for Thorvald II: Roboteq FBL2360 motor controllers and KC Battery BMS</description>
+  <maintainer email="gbr.tenorio@gmail.com">Gabriel Tenorio</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

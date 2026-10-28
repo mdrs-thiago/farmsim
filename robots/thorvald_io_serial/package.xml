@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>thorvald_io_serial</name>
+  <version>2.0.0</version>
+  <description>Serial I/O node for Thorvald II enclosure board / light rig (Arduino)</description>
+  <maintainer email="gbr.tenorio@gmail.com">Gbrtenorio</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>thorvald_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

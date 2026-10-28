@@ -1,0 +1,66 @@
+# Logitech F710 — HW mode switch set to "X", MODE LED OFF
+
+teleop_node:
+  ros__parameters:
+
+    turn_calc_w: 0.75
+    turn_calc_l: 0.75
+
+    axis_map:
+      axis_vx: 1
+      axis_vy: 0
+      axis_wz: 3
+      axis_turn_left: 2
+      axis_turn_right: 5
+      axis_drive_mode_right: 6
+      axis_drive_mode_forward: 7
+
+    button_map:
+      button_less_gain: 4
+      button_more_gain: 5
+      button_function: 7
+      button_teleop_lock: 6
+      button_0: 0
+      button_1: 1
+      button_2: 2
+      button_3: 3
+      button_4: 8
+      button_5: 9
+      button_6: 10
+      button_7: 11
+      button_8: 17
+      button_9: 18
+
+    button_turning_safety: button_3
+
+    home_buttons:
+      - button_0
+      - button_3
+
+    omni_buttons:
+      - button_1
+      - button_2
+
+    kv_default_buttons:
+      - button_less_gain
+      - button_more_gain
+
+    mode_left_buttons:
+      - button_function
+      - button_8
+
+    mode_forward_buttons:
+      - button_function
+      - button_9
+
+    trigger_map:
+      button_0: "release_esd_lock"
+      button_1: ""
+      button_2: ""
+      button_3: ""
+
+    gains:
+      kv_default: 0.75
+      kv_min: 0.1
+      kv_max: 1.5
+      kv_increment: 0.1

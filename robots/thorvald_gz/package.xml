@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>thorvald_gz</name>
+  <version>0.1.0</version>
+  <description>Glue between thorvald_base's twist_to_joints and the gz-sim per-joint plugins.</description>
+  <maintainer email="thiago.medeiros.carvalho@gmail.com">thiane</maintainer>
+  <license>BSD</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

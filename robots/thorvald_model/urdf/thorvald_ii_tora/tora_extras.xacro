@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tora_extras">
+  <xacro:arg name="tf_prefix" default=""/>
+
+  <xacro:include filename="tora_frame.xacro">
+    <xacro:arg name="tf_prefix" value="$(arg tf_prefix)" />
+  </xacro:include>
+
+  <xacro:include filename="tora_sensors.xacro">
+    <xacro:arg name="tf_prefix" value="$(arg tf_prefix)" />
+  </xacro:include>
+
+</robot>
+

@@ -1,0 +1,4 @@
+int32 can_id
+---
+string message
+bool success

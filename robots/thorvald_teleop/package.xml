@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>thorvald_teleop</name>
+  <version>2.0.0</version>
+  <description>Joystick teleoperation node for Thorvald II (Logitech F710 / Xbox)</description>
+  <maintainer email="gbr.tenorio@gmail.com">Gbrtenorio</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

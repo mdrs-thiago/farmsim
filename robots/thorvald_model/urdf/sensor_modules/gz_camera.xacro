@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!--
+  Single forward-facing gz-sim (new Gazebo) camera, for use with
+  control_backend='gz_sim'. Passed in via the model_extras xacro arg, e.g.:
+
+    model_extras:=.../sensor_modules/gz_camera.xacro
+
+  Mounted on base_link, ahead of the front corner modules and above the
+  pipe/frame height (see thorvald_ii_4wd4ws_std.yaml: pipes at z~0.68,
+  front drives at x~0.678), with a slight nose-down tilt so the field
+  ahead of the robot is in frame rather than just the sky.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="gz_camera">
+
+  <!-- Overridable via farm_sim.launch.py's camera_height/camera_pitch/camera_x
+       args (defaults below match the original fixed mount).
+
+       camera_x is the forward overhang from base_link. NOTE: 0.80 was sized
+       for thorvald_ii_4wd4ws_std (front drives at x~0.678); on
+       thorvald_ii_4wd2ws_tora base_link sits ON the front axle (axles at
+       x=0.0 and x=-1.094), so 0.80 is a long unsupported lever arm and turns
+       chassis pitch into large horizon swing / camera bob. It is a randomized
+       dataset axis now; whatever value is used here MUST also be passed to
+       record_camera_poses as camera_x_offset, or T_world_optical is wrong. -->
+  <xacro:arg name="camera_height" default="0.90" />
+  <xacro:arg name="camera_pitch" default="0.15" />
+  <xacro:arg name="camera_x" default="0.80" />
+  <!-- A real mast-mounted camera is never perfectly square to the chassis.
+       roll/yaw are small mounting misalignments; hfov and noise vary the
+       sensor itself. All four are recorded per session: hfov reaches the label
+       pipeline through the published CameraInfo (fx/fy), and roll/yaw through
+       record_camera_poses' mount composition, so the ground truth stays exact
+       for every draw. URDF rpy is fixed-axis, i.e. Rz(yaw)Ry(pitch)Rx(roll). -->
+  <xacro:arg name="camera_roll" default="0.0" />
+  <xacro:arg name="camera_yaw" default="0.0" />
+  <xacro:arg name="camera_hfov" default="1.396" />
+  <xacro:arg name="camera_noise_stddev" default="0.0" />
+
+  <xacro:property name="camera_size" value="0.05" />
+  <xacro:property name="camera_x" value="$(arg camera_x)" />
+  <xacro:property name="camera_z" value="$(arg camera_height)" />
+  <xacro:property name="camera_pitch" value="$(arg camera_pitch)" />
+  <xacro:property name="camera_roll" value="$(arg camera_roll)" />
+  <xacro:property name="camera_yaw" value="$(arg camera_yaw)" />
+
+  <material name="camera_yellow">
+    <color rgba="0.9 0.75 0.1 1.0" />
+  </material>
+
+  <link name="${tf_prefix}front_camera_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="0.05" />
+      <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="${camera_size} ${camera_size} ${camera_size}" />
+      </geometry>
+      <material name="camera_yellow" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="${camera_size} ${camera_size} ${camera_size}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${tf_prefix}front_camera_joint" type="fixed">
+    <parent link="${tf_prefix}base_link" />
+    <child link="${tf_prefix}front_camera_link" />
+    <origin xyz="${camera_x} 0 ${camera_z}" rpy="${camera_roll} ${camera_pitch} ${camera_yaw}" />
+  </joint>
+
+  <gazebo reference="${tf_prefix}front_camera_link">
+    <sensor name="front_camera" type="camera">
+      <camera>
+        <horizontal_fov>$(arg camera_hfov)</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>20</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>$(arg camera_noise_stddev)</stddev>
+        </noise>
+      </camera>
+      <always_on>true</always_on>
+      <update_rate>15</update_rate>
+      <visualize>true</visualize>
+      <topic>front_camera</topic>
+    </sensor>
+  </gazebo>
+
+</robot>

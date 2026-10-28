@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tora_sensors">
+
+
+<link name="$(arg tf_prefix)septentrio" >
+  <visual>
+    <material name="sept_color">
+      <color rgba="1 0.8 0 1" />
+    </material>
+    <geometry>
+      <cylinder length="0.05" radius="0.10" />
+    </geometry>
+  </visual>
+</link>
+
+
+<joint name="$(arg tf_prefix)base_septentrio" type="fixed">
+  <parent link="$(arg tf_prefix)base_link"/>
+  <child link="$(arg tf_prefix)septentrio"/>
+  <origin xyz="-0.25 0 1.82" rpy="0 0 0"/>
+</joint>
+
+</robot>
+

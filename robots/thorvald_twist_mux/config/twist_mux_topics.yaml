@@ -1,0 +1,25 @@
+twist_mux:
+  ros__parameters:
+    topics:
+      - teleop_joy
+      - nav
+    locks:
+      - teleop_joy
+
+    # Teleop joystick — highest priority
+    topic_teleop_joy:
+      topic: teleop_joy/cmd_vel
+      priority: 100
+      timeout: 0.5
+
+    # Navigation stack — lower priority
+    topic_nav:
+      topic: nav/cmd_vel
+      priority: 10
+      timeout: 0.5
+
+    # Lock: joystick lock signal blocks navigation commands
+    lock_teleop_joy:
+      topic: teleop_joy/joy_priority
+      priority: 100
+      timeout: 0.5

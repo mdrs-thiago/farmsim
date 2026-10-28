@@ -1,0 +1,6 @@
+int32 can_id
+int32 setup_id
+int32 setup_value
+---
+string message
+int32 status

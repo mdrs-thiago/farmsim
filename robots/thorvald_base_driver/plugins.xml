@@ -1,0 +1,7 @@
+<library path="pltf_clc_std">
+  <class name="pltf_clc_std::PltfClcStd"
+         type="pltf_clc_std::PltfClcStd"
+         base_class_type="pltf_clc_itf::PltfClcItf">
+    <description>ICR-based kinematics for Thorvald II (standard 4WS and variants)</description>
+  </class>
+</library>

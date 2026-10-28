@@ -1,0 +1,14 @@
+bool over_voltage_protection
+bool under_voltage_protection
+bool over_temperature_protection
+bool under_temperature_protection
+bool over_charge_current
+bool over_discharge_current
+bool can_communication_fail
+bool cell_voltage_sensing_fault
+bool bms_fail
+bool short_circuit_discharge
+bool temperature_sensing_fault
+bool over_voltage_fault
+bool under_voltage_fault
+bool pack_voltage_sensing_fault

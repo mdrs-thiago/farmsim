@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>thorvald_gui</name>
+  <version>2.0.0</version>
+  <description>RQT monitoring panel for Thorvald II — motors, batteries, enclosure</description>
+  <maintainer email="gbr.tenorio@gmail.com">Gbrtenorio</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>thorvald_msgs</depend>
+  <depend>python3-pyqt5</depend>
+
+  <exec_depend>rqt_gui</exec_depend>
+  <exec_depend>rqt_gui_py</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
+  </export>
+</package>

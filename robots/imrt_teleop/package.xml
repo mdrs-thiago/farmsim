@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>imrt_teleop</name>
+  <version>0.1.0</version>
+  <description>ROS2 teleoperation node converting Joy to Twist commands.</description>
+  <maintainer email="noreply@nmbu.no">NMBU Robotics</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <build_depend>rclpy</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>imrt_virtual_joy</build_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>imrt_virtual_joy</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

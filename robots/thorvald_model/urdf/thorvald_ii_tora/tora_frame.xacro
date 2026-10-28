@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="tora_frame">
+
+<xacro:arg name="tf_prefix" default=""/>
+
+<link name="$(arg tf_prefix)tora_frame">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="1"/>
+    <inertia
+      ixx="1.0" ixy="0.0" ixz="0.0"
+      iyy="1.0" iyz="0.0"
+      izz="1.0"/>
+  </inertial>
+  <visual>
+    <geometry>
+      <mesh filename="package://thorvald_model/meshes/tora_modules/DUMMY-TORA-FRAME.stl"/>
+    </geometry>
+    <material name="whiter">
+      <color rgba="1 1 1 1"/>
+    </material>
+  </visual>
+  <colision>
+    <geometry>
+      <mesh filename="package://thorvald_model/meshes/tora_modules/DUMMY-TORA-FRAME.stl"/>
+    </geometry>
+  </colision>
+</link>
+
+
+<joint name="$(arg tf_prefix)base_tora_frame" type="fixed">
+  <parent link="$(arg tf_prefix)base_link"/>
+  <child link="$(arg tf_prefix)tora_frame"/>
+  <origin xyz="-0.547 0 0.65" rpy="0 0 ${pi}"/>
+</joint>
+
+</robot>
+

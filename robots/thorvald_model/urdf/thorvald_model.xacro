@@ -1,0 +1,986 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="thorvald_ii">
+  <xacro:arg name="robot_name" default=""/>
+  <xacro:arg name="tf_prefix" default=""/>
+  <xacro:arg name="robot_config" default=""/>
+  <xacro:arg name="model_extras" default=""/>
+  <!-- 'ros2_control' (default): unchanged real-hardware / Gazebo Classic
+       behavior via gazebo_ros2_control. 'gz_sim': new-Gazebo (gz-sim) per-
+       joint plugins instead, since gazebo_ros2_control/ros2_control are not
+       installed alongside gz-sim. -->
+  <xacro:arg name="control_backend" default="ros2_control"/>
+
+  <xacro:property name="base_params" value="${xacro.load_yaml(robot_config)}"/>
+  <xacro:property name="robot_name" value="$(arg robot_config)"/>
+  <xacro:property name="tf_prefix" value="$(arg tf_prefix)"/>
+  <xacro:property name="robot_config" value="$(arg robot_config)"/>
+  <xacro:property name="model_extras" value="$(arg model_extras)"/>
+  <xacro:property name="control_backend" value="$(arg control_backend)"/>
+
+  <xacro:property name="platform_height" value="0.65" />
+  <xacro:property name="frame_beam_width" value="0.040" />
+  <xacro:property name="frame_beam_height" value="0.190" />
+  <xacro:property name="pipe_radius" value="0.02" />
+
+  <!-- Wheel module parameters -->
+  <xacro:property name="leg_radius" value="0.040" />
+  <xacro:property name="wheel_width" value="0.160" />
+
+  <!-- Battery parameters -->
+  <xacro:property name="battery_length" value="0.500" />
+  <xacro:property name="battery_width" value="0.250" />
+  <xacro:property name="battery_height" value="0.400" />
+  <xacro:property name="battery_dxy" value="0.00" />
+  <xacro:property name="battery_dz" value="-0.150" />
+
+  <!-- MATERIAL DEFINITIONS -->
+  <material name="white_material" >
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <material name="black_material" >
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="red_material" >
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="green_material" >
+    <color rgba="0.0 1.0 0.0 1.0"/>
+  </material>
+  <material name="lblue_material" >
+    <color rgba="0.6 0.6 0.8 1.0"/>
+  </material>
+  <material name="alu_material" >
+    <color rgba="0.75 0.75 0.75 1.0"/>
+  </material>
+
+  <!-- MACROS -->
+  <!-- Wheel module creating macro-->
+  <xacro:macro name="make_legs" params="current_index:=0">
+    <xacro:property name="top" value="top${current_index}" />
+    <xacro:property name="leg" value="leg${current_index}" />
+    <xacro:property name="wheel" value="wheel${current_index}" />
+    <xacro:property name="drive" value="drive${current_index}" />
+    <xacro:property name="steering" value="steering${current_index}" />
+    <xacro:property name="radius_wheel" value="${base_params['motor_drives'][drive]['r_wheel']}" />
+    <xacro:property name="leg_mesh" value="${base_params['motor_drives'][drive]['leg_mesh']}" />
+    <xacro:property name="x" value="${base_params['motor_drives'][drive]['x']}" />
+    <xacro:property name="y" value="${base_params['motor_drives'][drive]['y']}" />
+    <xacro:property name="z" value="${platform_height}" />
+    <xacro:property name="leg_length" value="${platform_height - radius_wheel*4}" /> 
+    <xacro:property name="leg_z" value="${leg_length / 2 + radius_wheel}" />
+
+    <xacro:if value="${leg_mesh == 0}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-TOWER-M.stl"/>
+      <xacro:property name="top_origin" value="${x} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 1}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-MIRROR-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 0"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-TOWER-MIRROR-M.stl"/>
+      <xacro:property name="top_origin" value="${x} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 0"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 2}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 0"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-TOWER-M.stl"/>
+      <xacro:property name="top_origin" value="${x} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 0"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 3}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-MIRROR-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-TOWER-MIRROR-M.stl"/>
+      <xacro:property name="top_origin" value="${x} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 4}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-DRIVE-BRACKET.stl"/>
+      <xacro:property name="top_origin" value="${x + 0.079} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 0"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 5}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-MIRROR-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 0"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-DRIVE-BRACKET.stl"/>
+      <xacro:property name="top_origin" value="${x -0.079} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 6}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 0"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-DRIVE-BRACKET.stl"/>
+      <xacro:property name="top_origin" value="${x -0.079} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 7}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-MIRROR-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="0 0 ${pi}"/>
+      <xacro:property name="top_mesh_path" value="package://thorvald_model/meshes/tower_modules/DUMMY-DRIVE-BRACKET.stl"/>
+      <xacro:property name="top_origin" value="${x + 0.079} ${y} ${platform_height}" />
+      <xacro:property name="top_rot" value="0 0 0"/>
+      <xacro:property name="top_color" value="red_material"/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 8}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-MIRROR-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="${pi} ${pi / 2} 0"/>
+      <xacro:property name="top_mesh_path" value=""/>
+    </xacro:if>
+
+    <xacro:if value="${leg_mesh == 9}">
+      <xacro:property name="leg_mesh_path" value="package://thorvald_model/meshes/drive_modules/836745-5-DUMMY-RevA.stl"/>
+      <xacro:property name="leg_pos" value="0 0 0"/>
+      <xacro:property name="leg_rot" value="${pi} ${pi / 2} 0"/>
+      <xacro:property name="top_mesh_path" value=""/>
+    </xacro:if>
+
+    <xacro:if value="${top_mesh_path != ''}">
+      <link name="${tf_prefix}${top}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+	          <mesh filename="${top_mesh_path}"/>
+          </geometry>
+	      <material name="${top_color}" />
+        </visual>
+        <collision>
+          <geometry>
+	          <mesh filename = "${top_mesh_path}"/>
+          </geometry>
+        </collision>
+      </link>
+
+      <joint name="${tf_prefix}base_link${top}" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+	      <child link="${tf_prefix}${top}"/>
+	      <origin xyz="${top_origin}" rpy="${top_rot}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+    </xacro:if>
+
+    <link name="${tf_prefix}${leg}">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="1"/>
+        <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+      <visual>
+	      <origin xyz="${leg_pos}" rpy="${leg_rot}"/>
+        <geometry>
+	        <mesh filename="${leg_mesh_path}" />
+        </geometry>
+	      <material name="white_material" />
+      </visual>
+      <collision>
+	      <origin xyz="${leg_pos}" rpy="${leg_rot}"/>
+        <geometry>
+	        <mesh filename="${leg_mesh_path}" />
+        </geometry>
+      </collision>
+    </link>
+  
+    <joint name="${tf_prefix}${steering}" type="revolute">
+      <limit effort="1000" velocity="3" lower="-1.5708" upper="1.5708"/>
+      <parent link="${tf_prefix}base_link"/>
+	    <child link="${tf_prefix}${leg}"/>
+	    <origin xyz="${x} ${y} ${radius_wheel}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="${tf_prefix}${wheel}_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="1"/>
+        <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${radius_wheel}"/>
+        </geometry>
+	      <material name="black_material" />
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder length="${wheel_width}" radius="${radius_wheel}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <gazebo reference="${tf_prefix}${wheel}_link">
+      <material>Gazebo/Black</material>
+    </gazebo>
+    
+    <joint name="${tf_prefix}${wheel}" type="continuous">
+      <parent link="${tf_prefix}${leg}"/>
+      <child link="${tf_prefix}${wheel}_link"/>
+	    <origin xyz="0 0 0" rpy="${-pi / 2} 0 0"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <xacro:property name="next_drive" value="drive${current_index + 1}" />
+    <xacro:if value="${next_drive in base_params['motor_drives']}">
+      <xacro:make_legs current_index="${current_index + 1}" />
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- Caster creating macro -->
+  <xacro:macro name="make_casters" params="current_index:=0">
+    <xacro:property name="caster" value="caster${current_index}" />
+    <xacro:if value="${caster in base_params['casters']}">
+      <xacro:property name="x" value="${base_params['casters'][caster]['x']}" />
+      <xacro:property name="y" value="${base_params['casters'][caster]['y']}" />
+      <xacro:property name="z_top" value="${base_params['casters'][caster]['z_top']}" />
+      <xacro:property name="r_wheel" value="${base_params['casters'][caster]['r_wheel']}" />
+      <xacro:property name="w_wheel" value="${base_params['casters'][caster]['w_wheel']}" />
+      <xacro:property name="offset" value="${base_params['casters'][caster]['offset']}" />
+      
+      <xacro:property name="caster_leg" value="caster_leg${current_index}" />
+      <xacro:property name="caster_wheel" value="caster_wheel${current_index}" />
+      <xacro:property name="leg_length" value="${z_top - r_wheel}" />
+      <xacro:property name="z" value="${z_top - leg_length / 2}" />
+  
+      <link name="${tf_prefix}${caster_leg}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+          </inertial>
+        <visual>
+          <geometry>
+	          <cylinder length="${leg_length}" radius="${pipe_radius}"/>
+          </geometry>
+          <material name="red_material" />
+        </visual>
+        <collision>
+          <geometry>
+	          <cylinder length="${leg_length}" radius="${pipe_radius}"/>
+          </geometry>
+        </collision>
+      </link>
+    
+      <joint name="${tf_prefix}${caster_leg}" type="continuous">
+        <parent link="${tf_prefix}base_link"/>
+      <child link="${tf_prefix}${caster_leg}"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+
+      <link name="${tf_prefix}${caster_wheel}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+	          <cylinder length="${w_wheel}" radius="${r_wheel}"/>
+          </geometry>
+	        <material name="black_material" />
+        </visual>
+        <collision>
+          <geometry>
+	          <cylinder length="${w_wheel}" radius="${r_wheel}"/>
+          </geometry>
+        </collision>
+      </link>
+
+      <joint name="${tf_prefix}${caster_wheel}" type="continuous">
+        <parent link="${tf_prefix}${caster_leg}"/>
+        <child link="${tf_prefix}${caster_wheel}"/>
+	      <origin xyz="${-offset} 0 ${-leg_length / 2}" rpy="${-pi / 2} 0 0"/>
+	      <axis xyz="0 0 1"/>
+      </joint>
+  
+      <xacro:property name="next_caster" value="caster${current_index + 1}" />
+      <xacro:if value="${next_caster in base_params['casters']}">
+        <xacro:make_casters current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- Passive wheel creating macro -->
+  <xacro:macro name="make_passive_wheels" params="current_index:=0">
+    <xacro:property name="passive_wheel" value="passive_wheel${current_index}" />
+    <xacro:if value="${passive_wheel in base_params['passive_wheels']}">
+      <xacro:property name="x" value="${base_params['passive_wheels'][passive_wheel]['x']}" />
+      <xacro:property name="y" value="${base_params['passive_wheels'][passive_wheel]['y']}" />
+      <xacro:property name="z_top" value="${base_params['passive_wheels'][passive_wheel]['z_top']}" />
+      <xacro:property name="r_wheel" value="${base_params['passive_wheels'][passive_wheel]['r_wheel']}" />
+      <xacro:property name="w_wheel" value="${base_params['passive_wheels'][passive_wheel]['w_wheel']}" />
+      
+      <xacro:property name="leg" value="passive_wheel_leg${current_index}" />
+      <xacro:property name="wheel" value="passive_wheel${current_index}" />
+      <xacro:property name="leg_length" value="${z_top - r_wheel}" />
+      <xacro:property name="z" value="${z_top - leg_length / 2}" />
+  
+      <link name="${tf_prefix}${leg}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+	          <cylinder length="${leg_length}" radius="${pipe_radius}"/>
+          </geometry>
+        <material name="red_material" />
+        </visual>
+        <collision>
+          <geometry>
+	          <cylinder length="${leg_length}" radius="${pipe_radius}"/>
+          </geometry>
+        </collision>
+      </link>
+    
+      <joint name="${tf_prefix}${leg}" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+      <child link="${tf_prefix}${leg}"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+
+      <link name="${tf_prefix}${wheel}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+	          <cylinder length="${w_wheel}" radius="${r_wheel}"/>
+          </geometry>
+	      <material name="black_material" />
+        </visual>
+        <collision>
+          <geometry>
+	          <cylinder length="${w_wheel}" radius="${r_wheel}"/>
+          </geometry>
+        </collision>
+      </link>
+
+      <joint name="${tf_prefix}${wheel}" type="continuous">
+        <parent link="${tf_prefix}${leg}"/>
+        <child link="${tf_prefix}${wheel}"/>
+	      <origin xyz="0 0 ${-leg_length / 2}" rpy="${-pi / 2} 0 0"/>
+	      <axis xyz="0 0 1"/>
+      </joint>
+  
+      <xacro:property name="next_passive_wheel" value="passive_wheel${current_index + 1}" />
+      <xacro:if value="${next_passive_wheel in base_params['passive_wheels']}">
+        <xacro:make_passive_wheels current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- Robot frame member creating macros -->
+  <xacro:macro name="make_beams" params="current_index:=0">
+    <xacro:property name="beam" value="beam${current_index}" />
+    <xacro:if value="${beam in base_params['beams']}">
+      <xacro:property name="start" value="${base_params['beams'][beam]['start']}" />
+      <xacro:property name="end" value="${base_params['beams'][beam]['end']}" />
+      <xacro:property name="start_x" value="${base_params['motor_drives'][start]['x']}" />
+      <xacro:property name="start_y" value="${base_params['motor_drives'][start]['y']}" />
+      <xacro:property name="end_x" value="${base_params['motor_drives'][end]['x']}" />
+      <xacro:property name="end_y" value="${base_params['motor_drives'][end]['y']}" />
+      <xacro:property name="length" value="${sqrt((end_y - start_y)**2 + (end_x - start_x)**2)}" />
+      <xacro:property name="y" value="${start_y + (end_y - start_y) / 2}" />
+      <xacro:property name="x" value="${start_x + (end_x - start_x) / 2}" />
+      
+      <xacro:property name="yaw" value="${ atan2((end_y - start_y), (end_x - start_x))}" />
+  
+      <link name="${tf_prefix}${beam}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+          <box size="${frame_beam_width} ${length} ${frame_beam_height}" />
+          </geometry>
+        <material name="lblue_material" />
+        </visual>
+        <collision>
+          <geometry>
+          <box size="${frame_beam_width} ${length} ${frame_beam_height}" />
+          </geometry>
+        </collision>
+      </link>
+    
+      <joint name="${tf_prefix}${beam}_link" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+      <child link="${tf_prefix}${beam}"/>
+      <origin xyz="${x} ${y} ${platform_height}" rpy="0 0 ${yaw - pi / 2}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+  
+      <xacro:property name="next_beam" value="beam${current_index + 1}" />
+      <xacro:if value="${next_beam in base_params['beams']}">
+        <xacro:make_beams current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="make_pipes" params="current_index:=0">
+    <xacro:property name="pipe" value="pipe${current_index}" />
+    <xacro:if value="${pipe in base_params['pipes']}">
+      <xacro:property name="start_x" value="${base_params['pipes'][pipe]['x1']}" />
+      <xacro:property name="start_y" value="${base_params['pipes'][pipe]['y1']}" />
+      <xacro:property name="end_x" value="${base_params['pipes'][pipe]['x2']}" />
+      <xacro:property name="end_y" value="${base_params['pipes'][pipe]['y2']}" />
+      <xacro:property name="height" value="${base_params['pipes'][pipe]['height']}" />
+      <xacro:property name="space" value="${base_params['pipes'][pipe]['space']}" />
+      <xacro:property name="length" value="${sqrt((end_y - start_y)**2 + (end_x - start_x)**2)}" />
+      <xacro:property name="y" value="${start_y + (end_y - start_y) / 2}" />
+      <xacro:property name="x" value="${start_x + (end_x - start_x) / 2}" />
+      <xacro:property name="yaw" value="${ atan2((end_y - start_y), (end_x - start_x))}" />
+  
+      <link name="${tf_prefix}${pipe}_1">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+	          <cylinder length="${length}" radius="${pipe_radius}"/>
+          </geometry>
+        <material name="lblue_material"/>
+        </visual>
+        <collision>
+          <geometry>
+	          <cylinder length="${length}" radius="${pipe_radius}"/>
+          </geometry>
+        </collision>
+      </link>
+      
+      <link name="${tf_prefix}${pipe}_2">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+	          <cylinder length="${length}" radius="${pipe_radius}"/>
+          </geometry>
+        <material name="lblue_material"/>
+        </visual>
+        <collision>
+          <geometry>
+	          <cylinder length="${length}" radius="${pipe_radius}"/>
+          </geometry>
+        </collision>
+      </link>
+    
+      <joint name="${tf_prefix}${pipe}_link_1" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+      <child link="${tf_prefix}${pipe}_1"/>
+      <origin xyz="${x} ${y} ${height - space / 2}" rpy="${pi / 2} 0 ${yaw - pi / 2}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+      
+      <joint name="${tf_prefix}${pipe}_link_2" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+      <child link="${tf_prefix}${pipe}_2"/>
+      <origin xyz="${x} ${y} ${height + space / 2}" rpy="${pi / 2} 0 ${yaw - pi / 2}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+  
+      <xacro:property name="next_pipe" value="pipe${current_index + 1}" />
+      <xacro:if value="${next_pipe in base_params['pipes']}">
+        <xacro:make_pipes current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="make_corners" params="current_index:=0">
+    <xacro:property name="corner" value="corner${current_index}" />
+    <xacro:if value="${corner in base_params['corners']}">
+      <xacro:property name="x" value="${base_params['corners'][corner]['x']}" />
+      <xacro:property name="y" value="${base_params['corners'][corner]['y']}" />
+      <xacro:property name="z" value="${base_params['corners'][corner]['z']}" />
+      <xacro:property name="space" value="${base_params['corners'][corner]['space']}" />
+      <xacro:property name="type" value="${base_params['corners'][corner]['type']}" />
+      <xacro:property name="corner_mesh" value="${base_params['corners'][corner]['corner_mesh']}" />
+      <xacro:property name="susp_ang" value="0" />
+      <xacro:if value="${'susp_ang' in base_params['corners'][corner]}">
+        <xacro:property name="susp_ang" value="${base_params['corners'][corner]['susp_ang']}" />
+      </xacro:if>
+      
+      <link name="${tf_prefix}${corner}_1">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="package://thorvald_model/meshes/clamps/DUMMY-T-BRACKET.stl" />
+          </geometry>
+        <material name="lblue_material" />
+        </visual>
+      </link>
+      <link name="${tf_prefix}${corner}_2">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="package://thorvald_model/meshes/clamps/DUMMY-T-BRACKET.stl" />
+          </geometry>
+        <material name="lblue_material" />
+        </visual>
+      </link>
+      <link name="${tf_prefix}${corner}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <cylinder length="${space}" radius="${pipe_radius}"/>
+          </geometry>
+        <material name="lblue_material" />
+        </visual>
+      </link>
+
+      <joint name="${tf_prefix}${corner}_link_1" type="fixed">
+        <parent link="${tf_prefix}${corner}"/>
+        <child link="${tf_prefix}${corner}_1"/>
+        <origin xyz="0.057 0 ${-space / 2}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+      <joint name="${tf_prefix}${corner}_link_2" type="fixed">
+        <parent link="${tf_prefix}${corner}"/>
+        <child link="${tf_prefix}${corner}_2"/>
+        <origin xyz="0.057 0 ${space / 2}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+
+      <xacro:if value="${corner_mesh == 1}">
+        <link name="${tf_prefix}${corner}_3">
+          <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+          </inertial>
+          <visual>
+            <geometry>
+              <mesh filename="package://thorvald_model/meshes/clamps/DUMMY-SUSP.stl" />
+            </geometry>
+          <material name="lblue_material" />
+          </visual>
+        </link>
+        <link name="${tf_prefix}${corner}_4">
+          <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+          </inertial>
+          <visual>
+            <geometry>
+              <mesh filename="package://thorvald_model/meshes/clamps/DUMMY-SUSP.stl" />
+            </geometry>
+          <material name="lblue_material" />
+          </visual>
+        </link>
+
+        <joint name="${tf_prefix}${corner}_link_3" type="fixed">
+          <parent link="${tf_prefix}${corner}"/>
+          <child link="${tf_prefix}${corner}_3"/>
+	        <origin xyz="${0.043 + 0.057} 0 ${-space / 2}" rpy="0 ${susp_ang} 0"/>
+          <axis xyz="0 0 1"/>
+        </joint>
+        <joint name="${tf_prefix}${corner}_link_4" type="fixed">
+          <parent link="${tf_prefix}${corner}"/>
+          <child link="${tf_prefix}${corner}_4"/>
+	        <origin xyz="${0.043 + 0.057} 0 ${space / 2}" rpy="0 ${susp_ang} 0"/>
+          <axis xyz="0 0 1"/>
+        </joint>
+
+      </xacro:if>
+
+      <xacro:property name="yaw" value="0" />
+      <xacro:property name="dx" value="0" />
+
+      <xacro:if value="${type == 0}">
+        <xacro:property name="yaw" value="${- pi}" />
+        <xacro:property name="dx" value="0.057" />
+      </xacro:if>
+
+      <xacro:if value="${type == 1}">
+        <xacro:property name="yaw" value="0" />
+        <xacro:property name="dx" value="-0.057" />
+      </xacro:if>
+
+      <xacro:if value="${type == 2}">
+        <xacro:property name="yaw" value="0" />
+        <xacro:property name="dx" value="-0.057" />
+      </xacro:if>
+
+      <xacro:if value="${type == 3}">
+        <xacro:property name="yaw" value="${- pi}" />
+        <xacro:property name="dx" value="0.057" />
+      </xacro:if>
+
+      <joint name="${tf_prefix}${corner}_link" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+        <child link="${tf_prefix}${corner}"/>
+	      <origin xyz="${x + dx} ${y} ${z}" rpy="0 0 ${yaw}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+    
+  
+      <xacro:property name="next_corner" value="corner${current_index + 1}" />
+      <xacro:if value="${next_corner in base_params['corners']}">
+        <xacro:make_corners current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- Battery creating macro -->
+  <xacro:macro name="make_batteries" params="current_index:=0">
+    <xacro:property name="bat" value="bat${current_index}" />
+    <xacro:if value="${bat in base_params['batteries']}">
+      <xacro:property name="x" value="${base_params['batteries'][bat]['x']}" />
+      <xacro:property name="y" value="${base_params['batteries'][bat]['y']}" />
+      <xacro:property name="bat_z" value="${base_params['batteries'][bat]['z']}" />
+      <xacro:property name="yaw" value="${base_params['batteries'][bat]['yaw']}" />
+      <xacro:property name="bat_mesh" value="${base_params['batteries'][bat]['bat_mesh']}" />
+      <xacro:property name="bat_mesh_path" value="" />
+      <xacro:property name="yaw_offset" value="0" />
+     
+      <xacro:if value="${bat_mesh == 0}">
+        <xacro:property name="x_bat" value="${x - battery_dxy * sin(yaw) }" />
+        <xacro:property name="y_bat" value="${y + battery_dxy * cos(yaw) }" />
+        <xacro:property name="bat_mesh_path" value="package://thorvald_model/meshes/bat_enc_modules/836586-1-DUMMY-RevA.stl"/>
+	      <xacro:property name="yaw_offset" value="${pi}" />
+      </xacro:if>
+
+      <xacro:if value="${bat_mesh == 1}">
+        <xacro:property name="x_bat" value="${x + battery_dxy * sin(yaw) }" />
+        <xacro:property name="y_bat" value="${y - battery_dxy * cos(yaw) }" />
+        <xacro:property name="bat_mesh_path" value="package://thorvald_model/meshes/bat_enc_modules/836586-1-DUMMY-RevA.stl"/>
+        <xacro:property name="yaw_offset" value="0" />
+      </xacro:if>
+
+      <xacro:if value="${bat_mesh_path == ''}">
+        <link name="${tf_prefix}${bat}">
+        <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="1"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+          </inertial>
+          <visual>
+            <geometry>
+              <box size="${battery_length} ${battery_width} ${battery_height}" />
+            </geometry>
+            <material name="white_material" />
+          </visual>
+          <collision>
+            <geometry>
+              <box size="${battery_length} ${battery_width} ${battery_height}" />
+            </geometry>
+          </collision>
+        </link>
+    
+      </xacro:if>
+
+      <xacro:if value="${bat_mesh_path != ''}">
+        <link name="${tf_prefix}${bat}">
+        <inertial>
+          <origin xyz="0 0 -0.25" rpy="0 0 0"/>
+          <mass value="30"/>
+          <inertia
+            ixx="1.0" ixy="0.0" ixz="0.0"
+            iyy="1.0" iyz="0.0"
+            izz="1.0"/>
+          </inertial>
+          <visual>
+	          <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+	            <mesh filename="${bat_mesh_path}"/>
+            </geometry>
+            <material name="white_material" />
+          </visual>
+          <collision>
+            <geometry>
+	            <mesh filename="${bat_mesh_path}"/>
+            </geometry>
+          </collision>
+        </link>
+      </xacro:if>
+
+      <joint name="${tf_prefix}${bat}_joint" type="fixed">
+        <parent link="${tf_prefix}base_link"/>
+        <child link="${tf_prefix}${bat}"/>
+        <origin xyz="${x_bat} ${y_bat} ${bat_z}" rpy="0 0 ${yaw + yaw_offset}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+
+      <xacro:property name="next_bat" value="bat${current_index + 1}" />
+      <xacro:if value="${next_bat in base_params['batteries']}">
+        <xacro:make_batteries current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+  
+  <!-- ROS2 control interfaces macro -->
+  <xacro:macro name="make_ros2_control_interfaces" params="current_index:=0">
+    <xacro:property name="drive" value="drive${current_index}" />
+    <xacro:property name="wheel" value="wheel${current_index}" />
+    <xacro:property name="steering" value="steering${current_index}" />
+
+    <xacro:if value="${drive in base_params['motor_drives']}">
+      <joint name="${tf_prefix}${steering}">
+        <command_interface name="position">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param> 
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="${tf_prefix}${wheel}">
+        <command_interface name="velocity">
+          <param name="min">-5.0</param>
+          <param name="max">5.0</param> 
+        </command_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="position"/>
+      </joint>
+
+      <xacro:property name="next_drive" value="drive${current_index + 1}" />
+      <xacro:if value="${next_drive in base_params['motor_drives']}">
+        <xacro:make_ros2_control_interfaces current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- gz-sim (new Gazebo) per-joint control plugins: used instead of
+       gazebo_ros2_control when control_backend='gz_sim'. One
+       JointPositionController per steering joint and one JointController
+       (force-command mode, so torque stays physically bounded) per wheel
+       joint, same pattern as nav_control's thorvald.urdf.xacro per-corner
+       plugin blocks. -->
+  <xacro:macro name="make_gz_sim_joint_plugins" params="current_index:=0">
+    <xacro:property name="drive" value="drive${current_index}" />
+    <xacro:property name="steering" value="steering${current_index}" />
+    <xacro:property name="wheel" value="wheel${current_index}" />
+
+    <xacro:if value="${drive in base_params['motor_drives']}">
+      <gazebo>
+        <plugin filename="gz-sim-joint-position-controller-system"
+                name="gz::sim::systems::JointPositionController">
+          <joint_name>${tf_prefix}${steering}</joint_name>
+          <topic>${steering}/cmd_pos</topic>
+          <p_gain>15.0</p_gain>
+          <i_gain>0.05</i_gain>
+          <d_gain>0.5</d_gain>
+          <i_max>1.0</i_max>
+          <i_min>-1.0</i_min>
+          <cmd_max>60</cmd_max>
+          <cmd_min>-60</cmd_min>
+        </plugin>
+      </gazebo>
+
+      <gazebo>
+        <plugin filename="gz-sim-joint-controller-system"
+                name="gz::sim::systems::JointController">
+          <joint_name>${tf_prefix}${wheel}</joint_name>
+          <topic>${wheel}/cmd_vel</topic>
+          <!-- Not force-command mode here (unlike nav_control's own
+               thorvald.urdf.xacro, which this was ported from): this
+               model's link masses/inertias are placeholder values (mass=1,
+               inertia=1.0 on nearly every link, e.g. the wheel_link itself
+               a few lines up) never tuned for torque-based dynamics;
+               applying a force-PID computed against those inconsistent
+               inertias caused the robot to spin up uncontrollably and tip
+               over during testing. Without use_force_commands, this plugin
+               sets wheel spin velocity directly (a hard kinematic
+               constraint) each step instead, sidestepping the mass/inertia
+               mismatch entirely; PID gains are only used in force-command
+               mode so are omitted here. -->
+        </plugin>
+      </gazebo>
+
+      <xacro:property name="next_drive" value="drive${current_index + 1}" />
+      <xacro:if value="${next_drive in base_params['motor_drives']}">
+        <xacro:make_gz_sim_joint_plugins current_index="${current_index + 1}" />
+      </xacro:if>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- CREATE ROBOT -->
+
+  <!-- Create base link -->
+  <link name="${tf_prefix}base_link" />
+
+  <!-- Create legs -->
+  <xacro:if value="${'motor_drives' in base_params}">
+    <xacro:make_legs />
+  </xacro:if>
+  
+  <!-- Create casters -->
+  <xacro:if value="${'casters' in base_params}">
+    <xacro:make_casters />
+  </xacro:if>
+
+  <!-- Create passive support wheels -->
+  <xacro:if value="${'passive_wheels' in base_params}">
+    <xacro:make_passive_wheels />
+  </xacro:if>
+
+  <!-- Create beams -->
+  <xacro:if value="${'beams' in base_params}">
+    <xacro:make_beams />
+  </xacro:if>
+
+  <!-- Create beams -->
+  <xacro:if value="${'corners' in base_params}">
+    <xacro:make_corners />
+  </xacro:if>
+
+  <!-- Create pipes -->
+  <xacro:if value="${'pipes' in base_params}">
+    <xacro:make_pipes />
+  </xacro:if>
+
+  <!-- Create batteries -->
+  <xacro:if value="${'batteries' in base_params}">
+    <xacro:make_batteries />
+  </xacro:if>
+
+  <!-- Create extras -->
+  <xacro:if value="${model_extras != ''}">
+    <xacro:include filename="${model_extras}" />
+  </xacro:if>
+
+  <xacro:if value="${control_backend == 'ros2_control'}">
+    <ros2_control name="GazeboSystem" type="system">
+      <hardware>
+        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      </hardware>
+      <xacro:if value="${'motor_drives' in base_params}">
+        <xacro:make_ros2_control_interfaces />
+      </xacro:if>
+    </ros2_control>
+
+    <gazebo>
+      <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+        <parameters>$(find thorvald_model)/config/controllers.yaml</parameters>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+
+  <xacro:if value="${control_backend == 'gz_sim'}">
+    <xacro:if value="${'motor_drives' in base_params}">
+      <xacro:make_gz_sim_joint_plugins />
+    </xacro:if>
+
+    <gazebo>
+      <plugin filename="gz-sim-joint-state-publisher-system"
+              name="gz::sim::systems::JointStatePublisher">
+        <topic>joint_states</topic>
+      </plugin>
+    </gazebo>
+
+    <gazebo>
+      <plugin filename="gz-sim-odometry-publisher-system"
+              name="gz::sim::systems::OdometryPublisher">
+        <odom_frame>odom</odom_frame>
+        <robot_base_frame>${tf_prefix}base_link</robot_base_frame>
+        <odom_topic>odom</odom_topic>
+        <odom_publish_frequency>20</odom_publish_frequency>
+        <tf_topic>tf</tf_topic>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+
+</robot>

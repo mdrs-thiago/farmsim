@@ -1,0 +1,19 @@
+<library path="thorvald_gui">
+  <class name="thorvald_gui/ThorvaldGUI"
+         type="thorvald_gui.thorvald_gui_plugin.ThorvaldGUIPlugin"
+         base_class_type="rqt_gui_py::Plugin">
+    <description>
+      Thorvald II monitoring panel — shows motor controllers, battery status and enclosure state.
+    </description>
+    <qtgui>
+      <group>
+        <label>Robot Tools</label>
+        <icon type="theme">system-run</icon>
+        <statustip>Thorvald II hardware monitor</statustip>
+      </group>
+      <label>Thorvald Monitor</label>
+      <icon type="theme">utilities-system-monitor</icon>
+      <statustip>Thorvald II hardware monitor</statustip>
+    </qtgui>
+  </class>
+</library>

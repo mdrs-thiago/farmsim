@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="imrt_virtual_joy" exec="gamepad_talker" namespace="imrt_virtual_joy" output="screen"/>
+</launch>

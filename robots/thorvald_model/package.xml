@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>thorvald_model</name>
+  <version>0.0.4</version>
+  <description>The thorvald_model package (ROS 2)</description>
+
+  <maintainer email="todo@todo.com">TODO</maintainer>
+  <license>TODO</license>
+
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

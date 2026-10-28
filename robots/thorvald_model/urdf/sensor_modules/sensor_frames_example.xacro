@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sensor_frames">
+
+<link name="${tf_prefix}base_sensors"/>
+
+<link name="${tf_prefix}septentrio"/>
+<link name="${tf_prefix}xsens"/>
+<link name="${tf_prefix}hokuyo"/>
+
+<joint name="${tf_prefix}base_base_sens" type="fixed">
+  <parent link="${tf_prefix}base_link"/>
+  <child link="${tf_prefix}base_sensors"/>
+  <origin xyz="0.67 0 0.6" rpy="0 0 0"/>
+</joint>
+
+<joint name="${tf_prefix}base_sens_septentrio" type="fixed">
+  <parent link="${tf_prefix}base_sensors"/>
+  <child link="${tf_prefix}septentrio"/>
+  <origin xyz="-0.01 0 0.3" rpy="0 0 0"/>
+</joint>
+
+
+<joint name="${tf_prefix}base_sens_xsens" type="fixed">
+  <parent link="${tf_prefix}base_sensors"/>
+  <child link="${tf_prefix}xsens"/>
+  <origin xyz="0.05 0 0" rpy="0 0 0"/>
+</joint>
+
+<joint name="${tf_prefix}base_sens_hokuyo" type="fixed">
+  <parent link="${tf_prefix}base_sensors"/>
+  <child link="${tf_prefix}hokuyo"/>
+  <origin xyz="0.10 0. 0" rpy="0 0 0"/>
+</joint>
+
+</robot>
