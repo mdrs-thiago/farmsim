@@ -219,8 +219,13 @@
       </collision>
     </link>
   
-    <joint name="${tf_prefix}${steering}" type="revolute">
-      <limit effort="1000" velocity="3" lower="-1.5708" upper="1.5708"/>
+    <!-- type 1 (propulsion only, diff-drive variants) has no steering motor:
+         a revolute joint there just flops under ground forces -->
+    <xacro:property name="drive_type" value="${base_params['motor_drives'][drive].get('type', 0)}" />
+    <joint name="${tf_prefix}${steering}" type="${'fixed' if drive_type == 1 else 'revolute'}">
+      <xacro:unless value="${drive_type == 1}">
+        <limit effort="1000" velocity="3" lower="-1.5708" upper="1.5708"/>
+      </xacro:unless>
       <parent link="${tf_prefix}base_link"/>
 	    <child link="${tf_prefix}${leg}"/>
 	    <origin xyz="${x} ${y} ${radius_wheel}" rpy="0 0 0"/>
@@ -242,9 +247,16 @@
         </geometry>
 	      <material name="black_material" />
       </visual>
+      <!-- gz-sim: sphere contact. DART's cylinder-vs-triangle-mesh contact on the
+           photogrammetry terrain drops out, so the drive wheels lost traction. -->
       <collision>
         <geometry>
-          <cylinder length="${wheel_width}" radius="${radius_wheel}"/>
+          <xacro:if value="${control_backend == 'gz_sim'}">
+            <sphere radius="${radius_wheel}"/>
+          </xacro:if>
+          <xacro:unless value="${control_backend == 'gz_sim'}">
+            <cylinder length="${wheel_width}" radius="${radius_wheel}"/>
+          </xacro:unless>
         </geometry>
       </collision>
     </link>
@@ -304,12 +316,34 @@
         </collision>
       </link>
     
-      <joint name="${tf_prefix}${caster_leg}" type="continuous">
+      <!-- gz-sim: ball casters. The swivelling caster (undamped swivel, placeholder
+           1 kg m^2 wheel inertia) dragged like a brake and made turns asymmetric, so
+           under gz_sim the caster is rigid and its wheel touches the ground through a
+           frictionless sphere. Joints get a _joint suffix: SDF rejects a joint named
+           like a link. -->
+      <!-- The leg slides vertically on a preloaded spring (sits at q=0 under the
+           static load), so on twisted terrain the casters give way instead of
+           lifting a drive wheel off the ground. Keep it soft: the caster load
+           difference is reacted by the drive axle, so at 8000 N/m about 5 cm
+           of terrain twist unloaded a drive wheel on the photogrammetry field.
+           2500 N/m with the rest position 9 cm down keeps the ~225 N preload. -->
+      <xacro:property name="ball_caster" value="${control_backend == 'gz_sim'}" />
+      <joint name="${tf_prefix}${caster_leg}_joint" type="${'prismatic' if ball_caster else 'continuous'}">
         <parent link="${tf_prefix}base_link"/>
       <child link="${tf_prefix}${caster_leg}"/>
       <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
+        <xacro:if value="${ball_caster}">
+          <limit lower="-0.1" upper="0.1" effort="10000" velocity="10"/>
+          <dynamics damping="400"/>
+        </xacro:if>
       </joint>
+      <xacro:if value="${ball_caster}">
+        <gazebo reference="${tf_prefix}${caster_leg}_joint">
+          <springStiffness>2500</springStiffness>
+          <springReference>-0.09</springReference>
+        </gazebo>
+      </xacro:if>
 
       <link name="${tf_prefix}${caster_wheel}">
         <inertial>
@@ -328,12 +362,24 @@
         </visual>
         <collision>
           <geometry>
-	          <cylinder length="${w_wheel}" radius="${r_wheel}"/>
+            <xacro:if value="${ball_caster}">
+              <sphere radius="${r_wheel}"/>
+            </xacro:if>
+            <xacro:unless value="${ball_caster}">
+	            <cylinder length="${w_wheel}" radius="${r_wheel}"/>
+            </xacro:unless>
           </geometry>
         </collision>
       </link>
 
-      <joint name="${tf_prefix}${caster_wheel}" type="continuous">
+      <xacro:if value="${ball_caster}">
+        <gazebo reference="${tf_prefix}${caster_wheel}">
+          <mu1>0.0</mu1>
+          <mu2>0.0</mu2>
+        </gazebo>
+      </xacro:if>
+
+      <joint name="${tf_prefix}${caster_wheel}_joint" type="${'fixed' if ball_caster else 'continuous'}">
         <parent link="${tf_prefix}${caster_leg}"/>
         <child link="${tf_prefix}${caster_wheel}"/>
 	      <origin xyz="${-offset} 0 ${-leg_length / 2}" rpy="${-pi / 2} 0 0"/>
@@ -856,6 +902,7 @@
 
     <xacro:if value="${drive in base_params['motor_drives']}">
       <gazebo>
+        <xacro:unless value="${base_params['motor_drives'][drive].get('type', 0) == 1}">
         <plugin filename="gz-sim-joint-position-controller-system"
                 name="gz::sim::systems::JointPositionController">
           <joint_name>${tf_prefix}${steering}</joint_name>
@@ -868,6 +915,7 @@
           <cmd_max>60</cmd_max>
           <cmd_min>-60</cmd_min>
         </plugin>
+        </xacro:unless>
       </gazebo>
 
       <gazebo>

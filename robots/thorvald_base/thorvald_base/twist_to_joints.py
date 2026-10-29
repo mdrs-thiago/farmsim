@@ -112,6 +112,9 @@ class TwistToJoints(Node):
             # Pure translation
             steer = math.atan2(vy, vx) if (vx != 0.0 or vy != 0.0) else 0.0
             speed_lin = math.sqrt(vx ** 2 + vy ** 2)
+            # Reversing gives steer = pi: fold it so the wheels spin backwards
+            # instead (diff-drive variants have no steering joint at all).
+            steer, speed_lin = self._fold_angle(steer, speed_lin)
             for d in self._drives:
                 speeds.append(speed_lin / d['r_wheel'])  # m/s → rad/s
                 steers.append(steer)

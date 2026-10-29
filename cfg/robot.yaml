@@ -1,8 +1,8 @@
 # Thorvald variant and front-camera mount used by every simulation.
 robot:
   # file under robots/thorvald_model/config/<variant>/<variant>.yaml
-  variant: thorvald_ii_4wd2ws_tora
-  spawn_z: 2.0            # dropped onto the photogrammetry terrain from this height
+  variant: thorvald_ii_2wd0ws_tora
+  # spawn_z: 2.0          # fixed spawn height; default: 0.1 m above the terrain heightmap
   camera:
     height: 0.90          # m above base_link
     pitch: 0.15           # rad, nose down

@@ -44,7 +44,7 @@ def test_run_control_launch_arguments():
     x, y, yaw = FieldPath.load(repo_path(cfg['run']['path'])).spawn_pose()
     m = sim_launch_mapping(cfg, {'x': x, 'y': y, 'yaw': yaw}, control=True)
     assert m['field'] == 20250425 and m['control'] is True
-    assert m['robot_config'].endswith('thorvald_ii_4wd2ws_tora.yaml')
+    assert m['robot_config'].endswith(f"{cfg['robot']['variant']}.yaml")
 
 
 def test_record_session_controller_and_path(tmp_path):
