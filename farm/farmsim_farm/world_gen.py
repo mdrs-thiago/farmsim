@@ -113,6 +113,19 @@ def load_heightmap(path):
     return sample
 
 
+def spawn_height(heightmap, x, y, clearance=0.1, radius=1.3, fallback=2.0):
+    """Spawn z just above the highest ground within `radius` of (x, y), so the
+    robot settles onto the terrain instead of being dropped onto it. A long
+    drop onto the photogrammetry mesh bounces it and it lands yawed and shifted."""
+    if heightmap is None:
+        return fallback
+    import numpy as np
+    zs = [heightmap(x + dx, y + dy) for dx in np.arange(-radius, radius + 1e-6, 0.25)
+          for dy in np.arange(-radius, radius + 1e-6, 0.25) if dx * dx + dy * dy <= radius * radius]
+    zs = [z for z in zs if not np.isnan(z)]
+    return max(zs) + clearance if zs else fallback
+
+
 def add_weeds(world_elem, rows_file, rng, n_weeds_range=(0, 10),
                corridor_offset_range=(0.4, 0.9), weed_scale_range=(0.6, 1.4), drop_z=1.5,
                heightmap=None):
@@ -305,7 +318,8 @@ def build_parser():
     parser.add_argument('--out-world-dir', required=True)
     parser.add_argument('--session-name', required=True)
     parser.add_argument('--seed', type=int, required=True)
-    parser.add_argument('--spawn-z', type=float, default=2.0)
+    parser.add_argument('--spawn-z', type=float, default=None,
+                        help='spawn height; default: just above the terrain heightmap')
     parser.add_argument('--navigation-profile', choices=('diverse', 'expected'), default='diverse',
                         help="'expected' uses the empirically stable PD region and a small "
                              "initial displacement; 'diverse' keeps the recovery/erratic mix")
@@ -481,7 +495,8 @@ def generate(args):
         'seed': args.seed,
         'session_name': args.session_name,
         'world_path': world_path,
-        'spawn': {'x': x, 'y': y, 'z': args.spawn_z, 'yaw': yaw},
+        'spawn': {'x': x, 'y': y, 'yaw': yaw,
+                  'z': args.spawn_z if args.spawn_z is not None else spawn_height(heightmap, x, y)},
         'row_id': row_id,
         'navigation_profile': args.navigation_profile,
         'sun_direction': list(direction),

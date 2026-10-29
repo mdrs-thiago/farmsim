@@ -133,7 +133,7 @@ def record_session(cfg, seed):
         rows_file=str(field.rows_file), world_template=str(field.world),
         out_world_dir=str(GENERATED_WORLDS_DIR), session_name=session, seed=seed,
         navigation_profile=rc['navigation_profile'], terrain_heightmap=str(field.heightmap),
-        spawn_z=cfg['robot'].get('spawn_z', 2.0))
+        spawn_z=cfg['robot'].get('spawn_z'))
     params = world_gen.generate(args)
     with open(rec / 'run_params.json', 'w') as f:
         json.dump(params, f, indent=2)

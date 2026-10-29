@@ -44,12 +44,17 @@ def sim_launch_mapping(cfg, spawn, camera=None, world=None, **extra):
     `spawn` = dict(x, y, yaw[, z]); `camera` overrides cfg robot.camera."""
     robot = cfg['robot']
     cam = dict(robot['camera'], **(camera or {}))
+    z = spawn.get('z', robot.get('spawn_z'))
+    if z is None:
+        from farmsim_farm.fields import Field
+        from farmsim_farm.world_gen import load_heightmap, spawn_height
+        z = spawn_height(load_heightmap(str(Field(cfg['farm']['field']).heightmap)), spawn['x'], spawn['y'])
     mapping = {
         'field': cfg['farm']['field'],
         'world': str(world) if world else '',
         'robot_config': str(robot_config_file(robot['variant'])),
         'x': f"{spawn['x']:.3f}", 'y': f"{spawn['y']:.3f}",
-        'z': spawn.get('z', robot.get('spawn_z', 2.0)), 'yaw': f"{spawn['yaw']:.4f}",
+        'z': f'{z:.3f}', 'yaw': f"{spawn['yaw']:.4f}",
         'camera_height': cam['height'], 'camera_pitch': cam['pitch'], 'camera_x': cam['x'],
         'camera_roll': cam['roll'], 'camera_yaw': cam['yaw'], 'camera_hfov': cam['hfov'],
         'camera_noise_stddev': cam['noise_stddev'],
