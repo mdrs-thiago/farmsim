@@ -9,12 +9,18 @@ ground-truth baseline. Either way the score uses the ground-truth error.
   python run_control.py                                    # cfg/run_control.yaml
   python run_control.py control.strategy=fuzzy run.path=paths/single_row.yaml
   python run_control.py run.pose_source=gt run.repeats=3 sim.headless=false
+  python run_control.py run.pose_source=gt run.video=true run.max_duration_s=120
 
 Each run writes outputs/runs/<name>/ with the effective config, the
-controller log (control_log.jsonl), sim.log and metrics.json.
+controller log (control_log.jsonl), sim.log and metrics.json. run.video=true
+adds a chase camera to the robot and records chase_camera.mp4,
+front_camera.mp4 and video.mp4 (both cameras with the controller state
+drawn on); `python -m farmsim_utils.video compose` puts runs side by side.
 """
 
 import json
+import signal
+import subprocess
 import sys
 
 import yaml
@@ -50,11 +56,27 @@ def run(cfg, out_dir):
         perception=perception,
         checkpoint=repo_path(run_cfg['checkpoint']) if perception else '',
         perception_view=perception and not cfg['sim'].get('headless', True))
+    video = bool(run_cfg.get('video'))
+    if video:
+        mapping['model_extras'] = repo_path('robots/thorvald_model/urdf/sensor_modules/gz_camera_chase.xacro')
     if perception and not (run_cfg.get('checkpoint') and repo_path(run_cfg['checkpoint']).exists()):
         raise SystemExit(f"checkpoint {run_cfg['checkpoint']} not found; train one first "
                          '(python -m farmsim_perception.training.train) or set run.pose_source=gt')
     with Sim(mapping, str(out_dir / 'sim.log'), startup_wait_s=cfg['sim'].get('startup_wait_s', 12)) as sim:
-        reason = wait_for_completion(log, run_cfg['max_duration_s'], sim)
+        recorder = sim.run([sys.executable, '-m', 'farmsim_utils.video', 'record', str(out_dir)],
+                           log_path=str(out_dir / 'video.log')) if video else None
+        try:
+            reason = wait_for_completion(log, run_cfg['max_duration_s'], sim)
+        finally:
+            if recorder:
+                recorder.send_signal(signal.SIGTERM)
+                try:
+                    recorder.wait(timeout=60)
+                except subprocess.TimeoutExpired:
+                    recorder.kill()
+    if video:
+        from farmsim_utils.video import compose
+        compose(out_dir / 'video.mp4', [out_dir])
     metrics = score_log(read_log(log))
     metrics['end_reason'] = reason
     with open(out_dir / 'metrics.json', 'w') as f:

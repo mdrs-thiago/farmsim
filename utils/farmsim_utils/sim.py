@@ -25,7 +25,8 @@ PATTERN = ('gz-sim-main|gz-sim-gui-client|ros2 launch farmsim_|parameter_bridge 
            'thorvald_base/twist_to_joints|thorvald_gz/joint_command_splitter|'
            'farmsim_control/controller_node|farmsim_perception/perception_node|'
            'farmsim_perception/record_camera_poses|farmsim_perception/live_|'
-           'farmsim_farm/capture_topdown|robot_state_publisher --ros-args')
+           'farmsim_farm/capture_topdown|robot_state_publisher --ros-args|'
+           'farmsim_utils.video record')
 
 
 def tracked_pids():

@@ -46,6 +46,8 @@ BASE_BRIDGE_ARGS = [
     # topic regardless of the sensor's configured <topic> (image respects
     # it, camera_info does not) -- bridged as-is and remapped below.
     '/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+    # only published when model_extras is gz_camera_chase.xacro (run.video)
+    '/chase_camera@sensor_msgs/msg/Image[gz.msgs.Image',
 ]
 
 

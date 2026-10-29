@@ -190,6 +190,16 @@ experiment, tear everything down and save results under `outputs/`. Add
 python run_control.py run.pose_source=gt sim.headless=false
 ```
 
+or record it: `run.video=true` adds a chase camera behind the robot and writes
+`chase_camera.mp4`, `front_camera.mp4` and `video.mp4` (both cameras with the
+controller state drawn on) to the run folder. Runs can be put side by side:
+
+```bash
+python run_control.py run.pose_source=gt run.video=true control.strategy=pd run.name=pd
+python run_control.py run.pose_source=gt run.video=true control.strategy=fuzzy run.name=fuzzy
+python -m farmsim_utils.video compose outputs/runs/pd_vs_fuzzy.mp4 outputs/runs/pd outputs/runs/fuzzy
+```
+
 ### By hand with `ros2 launch`
 
 `farm/launch/farm_sim.launch.py` brings up one field with the robot:

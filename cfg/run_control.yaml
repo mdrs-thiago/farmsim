@@ -6,3 +6,4 @@ run:
   repeats: 1
   max_duration_s: 400
   name: null                # output folder name; default = timestamp
+  video: false              # record chase + front camera and a combined video.mp4
